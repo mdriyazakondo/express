@@ -1,9 +1,10 @@
 import express from "express";
 import { usersController } from "./users.controller";
+import auth from "../../middleware/auth";
 
 const userRoute = express();
 
-userRoute.get("/", usersController.allUserGet);
+userRoute.get("/", auth, usersController.allUserGet);
 
 userRoute.post("/", usersController.createUser);
 

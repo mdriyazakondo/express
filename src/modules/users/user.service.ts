@@ -1,27 +1,30 @@
 import { pool } from "../../db/db";
 import type { userInterface } from "./user.interface";
+import bcrypt from "bcryptjs";
 
 const userCreateService = async (payload: userInterface) => {
   const { name, email, password, age } = payload;
+  const hashPassword = await bcrypt.hash(password, 12);
+
   const result = await pool.query(
     `INSERT INTO users(name,email,password,age)
            VALUES($1,$2,$3,$4)
-           RETURNING *`,
-    [name, email, password, age],
+           RETURNING id,name,email,age,created_at,updated_at`,
+    [name, email, hashPassword, age],
   );
   return result;
 };
 
 const userAllService = async () => {
   const result = await pool.query(`
-     SELECT * FROM users `);
+     SELECT name,email,age,created_at,updated_at FROM users `);
   return result;
 };
 
 const userGetSingleService = async (id: string) => {
   const result = await pool.query(
     `
-        SELECT * FROM users  WHERE id = $1
+        SELECT name,email,age,created_at,updated_at FROM users  WHERE id = $1
       `,
     [id],
   );
@@ -41,7 +44,7 @@ const updateUserService = async (payload: userInterface) => {
         is_active = COALESCE($4, is_active),
         updated_at = NOW()
       WHERE id = $5
-      RETURNING *
+      RETURNING id,name,email,age,created_at,updated_at
       `,
     [name, password, age, is_active, id],
   );
@@ -50,7 +53,7 @@ const updateUserService = async (payload: userInterface) => {
 
 const userDeleteService = async (id: string) => {
   const result = await pool.query(
-    `DELETE FROM users WHERE id = $1 RETURNING *`,
+    `DELETE FROM users WHERE id = $1 RETURNING id,name,email,age,created_at,updated_at`,
     [id],
   );
 

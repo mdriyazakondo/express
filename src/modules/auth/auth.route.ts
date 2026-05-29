@@ -3,5 +3,6 @@ import { authController } from "./auth.controller";
 const authRoute = express.Router();
 
 authRoute.post("/login", authController.loginController);
+authRoute.post("/refresh-token", authController.refreshTokenController);
 
 export default authRoute;

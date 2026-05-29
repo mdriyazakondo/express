@@ -3,28 +3,43 @@ import type { userInterface } from "./user.interface";
 import bcrypt from "bcryptjs";
 
 const userCreateService = async (payload: userInterface) => {
-  const { name, email, password, age } = payload;
+  const { name, email, password, age, role } = payload;
   const hashPassword = await bcrypt.hash(password, 12);
 
-  const result = await pool.query(
-    `INSERT INTO users(name,email,password,age)
+  if (role) {
+    if (role !== "admin" && role !== "agent" && role !== "user") {
+      throw new Error(
+        "Invalid role provided. Role must be 'admin', 'agent', or 'user'.",
+      );
+    }
+    const result = await pool.query(
+      `INSERT INTO users(name,email,password,age,role)
+           VALUES($1,$2,$3,$4,COALESCE($5, 'user'))
+           RETURNING id,name,email,age,role,created_at,updated_at`,
+      [name, email, hashPassword, age, role],
+    );
+    return result;
+  } else {
+    const result = await pool.query(
+      `INSERT INTO users(name,email,password,age)
            VALUES($1,$2,$3,$4)
            RETURNING id,name,email,age,created_at,updated_at`,
-    [name, email, hashPassword, age],
-  );
-  return result;
+      [name, email, hashPassword, age],
+    );
+    return result;
+  }
 };
 
 const userAllService = async () => {
   const result = await pool.query(`
-     SELECT name,email,age,created_at,updated_at FROM users `);
+     SELECT name,email,age,role,created_at,updated_at FROM users `);
   return result;
 };
 
 const userGetSingleService = async (id: string) => {
   const result = await pool.query(
     `
-        SELECT name,email,age,created_at,updated_at FROM users  WHERE id = $1
+        SELECT name,email,age,role,created_at,updated_at FROM users  WHERE id = $1
       `,
     [id],
   );
@@ -33,7 +48,7 @@ const userGetSingleService = async (id: string) => {
 };
 
 const updateUserService = async (payload: userInterface) => {
-  const { name, password, age, is_active, id } = payload;
+  const { name, password, age, is_active, id, role } = payload;
   const result = await pool.query(
     `
       UPDATE users
@@ -42,18 +57,19 @@ const updateUserService = async (payload: userInterface) => {
         password =COALESCE($2, password),
         age = COALESCE($3, age),
         is_active = COALESCE($4, is_active),
+        role = COALESCE($6, role),
         updated_at = NOW()
       WHERE id = $5
-      RETURNING id,name,email,age,created_at,updated_at
+      RETURNING id,name,email,age,role,created_at,updated_at
       `,
-    [name, password, age, is_active, id],
+    [name, password, age, is_active, id, role],
   );
   return result;
 };
 
 const userDeleteService = async (id: string) => {
   const result = await pool.query(
-    `DELETE FROM users WHERE id = $1 RETURNING id,name,email,age,created_at,updated_at`,
+    `DELETE FROM users WHERE id = $1 RETURNING id,name,email,age,role,created_at,updated_at`,
     [id],
   );
 

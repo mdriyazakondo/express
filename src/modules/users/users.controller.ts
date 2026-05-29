@@ -2,6 +2,7 @@ import type { userInterface } from "./user.interface";
 import type { Request, Response } from "express";
 import { pool } from "../../db/db";
 import { userService } from "./user.service";
+import sendResponse from "../../utility/sendResponse";
 
 const createUser = async (req: Request, res: Response) => {
   try {
@@ -12,9 +13,17 @@ const createUser = async (req: Request, res: Response) => {
       success: true,
       data: result.rows[0],
     });
+
+    sendResponse(res, {
+      statusCode: 201,
+      message: "user create successfully",
+      success: true,
+      data: result.rows[0],
+    });
   } catch (error) {
-    res.status(404).json({
-      message: "user create felid",
+    sendResponse(res, {
+      statusCode: 404,
+      message: "user create failed",
       success: false,
       error: error,
     });
@@ -24,15 +33,16 @@ const createUser = async (req: Request, res: Response) => {
 const allUserGet = async (req: Request, res: Response) => {
   try {
     const result = await userService.userAllService();
-
-    res.status(200).json({
+    sendResponse(res, {
+      statusCode: 200,
       message: "users retrieved successfully",
       success: true,
       data: result.rows,
     });
   } catch (error) {
-    res.status(404).json({
-      message: "user fetch felid",
+    sendResponse(res, {
+      statusCode: 404,
+      message: "user fetch failed",
       success: false,
       error: error,
     });

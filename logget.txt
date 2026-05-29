@@ -116,3 +116,4 @@ Method --> POST Time --> Fri May 29 2026 09:05:48 GMT+0600 (Bangladesh Standard 
 Method --> POST Time --> Fri May 29 2026 09:06:54 GMT+0600 (Bangladesh Standard Time) URL --> /api/auth/refresh-token
 Method --> GET Time --> Fri May 29 2026 09:56:25 GMT+0600 (Bangladesh Standard Time) URL --> /api/users
 Method --> GET Time --> Fri May 29 2026 09:58:48 GMT+0600 (Bangladesh Standard Time) URL --> /api/users
+Method --> POST Time --> Fri May 29 2026 10:12:22 GMT+0600 (Bangladesh Standard Time) URL --> /api/users
